@@ -7,7 +7,7 @@
 
 import Fluent
 
-struct CreateLocation: AsyncMigration {
+struct CreateLocations: AsyncMigration {
     
     func prepare(on database: any Database) async throws {
         try await database.schema("locations")
