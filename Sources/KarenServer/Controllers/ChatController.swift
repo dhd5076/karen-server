@@ -27,7 +27,7 @@ struct ChatController {
     }
     
     //TODO: Implement with DTO
-    func getConversation(_ req: Request) async throws -> [Message] {
+    func getConversation(_ req: Request) async throws -> GetConversationResponse {
         
         guard let conversationID = req.parameters.get("conversationID", as: UUID.self) else {
             throw Abort(.badRequest)

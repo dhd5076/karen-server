@@ -8,5 +8,5 @@
 import Vapor
 
 public struct GetConversationResponse : Content {
-    let reply: [MessageResponse]
+    let messages: [MessageResponse]
 }

@@ -30,7 +30,7 @@ final class Message: Model, @unchecked Sendable {
     init () { }
     
     init(
-        id: UUID? = nil,
+        id: UUID,
         conversationID: UUID,
         content: String,
         role: String,
