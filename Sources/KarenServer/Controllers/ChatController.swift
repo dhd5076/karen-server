@@ -10,27 +10,36 @@ import Vapor
 struct ChatController {
     let chatService = ChatService()
     
-    func send(_ req: Request) async throws -> Message {
-        let data = try req.content.decode(SendMessageRequest.self)
+    func send(req: Request) async throws -> SendChatResponse {
+        let data = try req.content.decode(SendChatRequest.self)
         
         
-        return try await chatService.send(
+        let responseMessage = try await chatService.send(
             conversationID: data.conversationID,
             content: data.content,
             on: req.db
         )
         
+        return SendChatResponse(
+            content: responseMessage.content
+        )
+        
     }
     
+    //TODO: Implement with DTO
     func getConversation(_ req: Request) async throws -> [Message] {
         
         guard let conversationID = req.parameters.get("conversationID", as: UUID.self) else {
             throw Abort(.badRequest)
         }
         
-        return try await chatService.getMessages(
+        let messages = try await chatService.getMessages(
             conversationID: conversationID,
             on: req.db
+        )
+        
+        return GetConversationResponse(
+            messages: messages
         )
     }
 }

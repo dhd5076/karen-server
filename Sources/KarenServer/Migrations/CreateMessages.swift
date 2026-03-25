@@ -8,6 +8,7 @@
 import Fluent
 
 struct CreateMessages: AsyncMigration {
+    
     func prepare(on database: any Database) async throws {
 
         try await database.schema("messages")
