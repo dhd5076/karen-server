@@ -8,7 +8,6 @@
 import Vapor
 
 struct CreateLocationRequest: Content {
-    
     let type: String
     let latitude: Double
     let longitude: Double

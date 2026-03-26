@@ -26,7 +26,6 @@ struct ChatController {
         
     }
     
-    //TODO: Implement with DTO
     func getConversation(_ req: Request) async throws -> GetConversationResponse {
         
         guard let conversationID = req.parameters.get("conversationID", as: UUID.self) else {
@@ -38,8 +37,11 @@ struct ChatController {
             on: req.db
         )
         
+        let messageResponses = try messages.map(MessageResponse.init)
+        
         return GetConversationResponse(
-            messages: messages
+            messages: messageResponses
         )
     }
 }
+

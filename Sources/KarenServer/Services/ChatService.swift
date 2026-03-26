@@ -26,7 +26,9 @@ struct ChatService {
     }
     
     func getMessages(conversationID: UUID, on db: any Database) async throws -> [Message] {
-        //TODO Implement
-        return []
+        return try await Message.query(on: db)
+            .filter(\.$conversationID == conversationID)
+            .sort(\.$timestamp, .ascending)
+            .all()
     }
 }
