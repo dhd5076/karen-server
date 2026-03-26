@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-final class Location: Model, @unchecked Sendable{
+final class Location: Model, @unchecked Sendable {
 
     static let schema = "locations"
 

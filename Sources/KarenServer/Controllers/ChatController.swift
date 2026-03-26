@@ -8,6 +8,7 @@
 import Vapor
 
 struct ChatController {
+    //TODO: make global
     let chatService = ChatService()
     
     func send(req: Request) async throws -> SendChatResponse {
