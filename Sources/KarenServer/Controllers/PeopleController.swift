@@ -34,9 +34,11 @@ struct PeopleController {
     //TODO: Implement GetPersonByIdResponse
     func getByID(req: Request) async throws -> GetPersonByIdResponse {
         
-        let data = try req.content.decode(GetPersonByIdRequest.self)
+        guard let id = req.parameters.get("personID", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
         
-        let person = try await peopleService.getPersonById(id: data.id, on: req.db)
+        let person = try await peopleService.getPersonById(id: id, on: req.db)
         
         guard let id = person.id else {
             //Should not happen since database should add UUID
