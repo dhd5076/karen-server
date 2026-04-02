@@ -6,6 +6,9 @@
 //
 
 import Vapor
+
 struct GetPersonByIdResponse: Content {
-    //TODO: Implement
+    let firstName: String
+    let middleName: String
+    let lastName: String
 }

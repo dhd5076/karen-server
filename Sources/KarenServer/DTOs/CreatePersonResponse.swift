@@ -1,12 +1,12 @@
 //
-//  CreatePersonResponse.swift
+//  Untitled.swift
 //  KarenServer
 //
-//  Created by Dylan Dunn on 3/25/26.
+//  Created by Dylan Dunn on 4/1/26.
 //
 
 import Vapor
 
 struct CreatePersonResponse: Content {
-    //TODO: Implement
+    let id: UUID
 }

@@ -8,7 +8,7 @@
 import Foundation
 import Fluent
 
-struct PersonService {
+struct PeopleService {
     
     func createPerson() {
         //TODO: Implement
