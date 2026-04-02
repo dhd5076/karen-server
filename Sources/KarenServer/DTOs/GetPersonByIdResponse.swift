@@ -8,7 +8,8 @@
 import Vapor
 
 struct GetPersonByIdResponse: Content {
-    let firstName: String
-    let middleName: String
-    let lastName: String
+    let id: UUID
+    let firstname: String
+    let middlename: String
+    let lastname: String
 }
