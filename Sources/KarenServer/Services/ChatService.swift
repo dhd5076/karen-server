@@ -8,6 +8,7 @@ import Foundation
 import Fluent
 
 struct ChatService {
+    let llmService = LLMService()
     
     func send(conversationID: UUID, content: String, on db: any Database) async throws -> Message {
         
@@ -21,8 +22,10 @@ struct ChatService {
         
         try await message.save(on: db)
         
-        //TODO: implement LLM completion and reply
-        return message;
+        //TODO: Doublecheck after LLM Completion for validity
+        let response = try await llmService.generateResponse(message)
+        
+        return response;
     }
     
     func getMessages(conversationID: UUID, on db: any Database) async throws -> [Message] {
