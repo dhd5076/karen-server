@@ -7,7 +7,7 @@
 
 import Vapor
 
-struct GetPersonByIdResponse: Content {
+struct PersonResponse: Content {
     let id: UUID
     let firstname: String
     let middlename: String
