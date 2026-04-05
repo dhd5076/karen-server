@@ -27,5 +27,15 @@ struct PeopleService {
         
         return person
     }
+    
+    func searchByName(query: String, on db: any Database) async throws -> [Person] {
+        return try await Person.query(on: db)
+            .group(.or) { group in
+                group.filter(\.$firstname, .custom("ILIKE"), query)
+                group.filter(\.$middlename, .custom("ILIKE"), query)
+                group.filter(\.$lastname, .custom("ILIKE"), query)
+            }
+            .all()
+    }
 }
 

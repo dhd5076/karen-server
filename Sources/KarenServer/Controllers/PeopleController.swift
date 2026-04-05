@@ -31,8 +31,7 @@ struct PeopleController {
         return CreatePersonResponse(id: id)
     }
     
-    //TODO: Implement GetPersonByIdResponse
-    func getByID(req: Request) async throws -> GetPersonByIdResponse {
+    func getByID(req: Request) async throws -> PersonResponse {
         
         guard let id = req.parameters.get("personID", as: UUID.self) else {
             throw Abort(.badRequest)
@@ -45,11 +44,36 @@ struct PeopleController {
             throw Abort(.internalServerError, reason: "Person missing ID")
         }
         
-        return GetPersonByIdResponse(
+        return PersonResponse(
             id: id,
             firstname: person.firstname,
             middlename: person.middlename,
             lastname: person.lastname
         )
     }
+    
+    
+    func searchByName(req: Request) async throws -> [PersonResponse] {
+        
+        let data = try req.query.decode(PersonSearchQuery.self)
+        let name = data.name
+        guard !name.isEmpty else {
+            throw Abort(.badRequest, reason: "Missing or empty name query")
+        }
+        let people = try await peopleService.searchByName(query: name, on: req.db)
+        
+        return try people.map { person in
+            guard let id = person.id else {
+                throw Abort(.internalServerError, reason: "Person missing ID")
+            }
+            
+            return PersonResponse(
+                id: id, // Should always be set when retrieving out of db
+                firstname: person.firstname,
+                middlename: person.middlename,
+                lastname: person.lastname
+            )
+        }
+    }
 }
+
