@@ -31,6 +31,27 @@ struct PeopleController {
         return CreatePersonResponse(id: id)
     }
     
+    func getAll(req: Request) async throws -> [PersonResponse] {
+        
+        let people = try await peopleService.getAll(on: req.db)
+        
+        var peopleResponse: [PersonResponse] = try people.map { person in
+            
+            guard let id = person.id else {
+                throw Abort(.internalServerError, reason: "Person missing ID")
+            }
+            
+            return PersonResponse(
+                id: id,
+                firstname: person.firstname,
+                middlename: person.middlename,
+                lastname: person.lastname
+            )
+        }
+        
+        return peopleResponse
+    }
+    
     func getByID(req: Request) async throws -> PersonResponse {
         
         guard let id = req.parameters.get("personID", as: UUID.self) else {

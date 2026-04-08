@@ -18,6 +18,10 @@ struct PeopleService {
         return person
     }
     
+    func getAll(on db: any Database) async throws -> [Person] {
+        return try await Person.query(on: db).all()
+    }
+    
     func getPersonById(id: UUID, on db: any Database) async throws -> Person {
         guard let person = try await Person.query(on: db)
             .filter(\.$id == id).first() else {

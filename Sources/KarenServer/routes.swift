@@ -18,7 +18,9 @@ func routes(_ app: Application) throws {
     
     
     //People Routes
-    app.get("person", "search", use: peopleController.searchByName)
-    app.get("person", ":personID", use: peopleController.getByID)
-    app.post("person", use: peopleController.create)
+    app.get("people", use: peopleController.getAll)
+    app.get("people", "search", use: peopleController.searchByName)
+    app.get("people", ":personID", use: peopleController.getByID)
+    app.post("people", use: peopleController.create)
+
 }
