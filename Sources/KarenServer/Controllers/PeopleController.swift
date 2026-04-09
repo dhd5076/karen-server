@@ -11,6 +11,32 @@ struct PeopleController {
     //TODO: Make global
     let peopleService = PeopleService()
     
+    //TODO: Implement UpdatePersonResponse
+    func update(req: Request) async throws -> PersonResponse {
+        
+        let data = try req.content.decode(PersonRequest.self)
+        
+        let person = Person(
+            id: data.id,
+            firstname: data.firstName,
+            middlename: data.middleName,
+            lastname: data.lastName
+        )
+        
+        
+        let savedPerson =  try await peopleService.updatePerson(person: person, on: req.db)
+        
+        //TODO: This part seems a bit redundant
+        let personResponse = PersonResponse(
+            id: savedPerson.id!, //ID should always be set when pulling from db, should add a check
+            firstname: data.firstName,
+            middlename: data.middleName,
+            lastname: data.lastName
+        )
+        
+        return personResponse
+    }
+    
     func create(req: Request) async throws -> CreatePersonResponse {
         
         let data = try req.content.decode(CreatePersonRequest.self)

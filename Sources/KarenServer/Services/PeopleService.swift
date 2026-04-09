@@ -18,6 +18,13 @@ struct PeopleService {
         return person
     }
     
+    func updatePerson(person: Person, on db: any Database) async throws -> Person {
+        
+        //TODO: Implement
+        
+        return person
+    }
+    
     func getAll(on db: any Database) async throws -> [Person] {
         return try await Person.query(on: db).all()
     }
