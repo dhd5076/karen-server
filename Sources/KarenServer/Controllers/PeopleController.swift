@@ -122,5 +122,15 @@ struct PeopleController {
             )
         }
     }
+    
+    func delete(req: Request) async throws {
+        guard let id = req.parameters.get("personID", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        try await peopleService.delete(id: id, on: req.db)
+        
+        //TODO: Should we return something? or assume success on 200?
+    }
 }
 

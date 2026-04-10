@@ -48,5 +48,14 @@ struct PeopleService {
             }
             .all()
     }
+    
+    func delete(id: UUID, on db: any Database) async throws {
+        guard let person = try await Person.query(on: db)
+            .filter(\.$id == id).first() else {
+            throw Abort(.notFound, reason: "Person with ID doesn't exist")
+        }
+        
+        try await person.delete(on: db) //TODO: Make sure this is correct
+    }
 }
 
