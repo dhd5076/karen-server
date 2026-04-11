@@ -19,10 +19,26 @@ struct PeopleService {
     }
     
     func updatePerson(person: Person, on db: any Database) async throws -> Person {
+        //TODO: This whole function likely needs to be refactored
+        guard let id = person.id else {
+            throw Abort(.notFound, reason: "Person with ID doesn't exist")
+        }
         
-        //TODO: Implement
+        //TODO: Finish Implementation
+        guard var originalPerson = try await Person.query(on: db)
+            .filter(\.$id == id).first() else {
+                throw Abort(.notFound, reason: "Person with ID doesn't exist")
+            }
         
-        return person
+        //TODO: Find a better name for original person
+        originalPerson.firstname = person.firstname
+        originalPerson.middlename = person.middlename
+        originalPerson.lastname = person.lastname
+        
+        //TODO: Error handling?
+        try await originalPerson.update(on: db)
+        
+        return originalPerson
     }
     
     func getAll(on db: any Database) async throws -> [Person] {
