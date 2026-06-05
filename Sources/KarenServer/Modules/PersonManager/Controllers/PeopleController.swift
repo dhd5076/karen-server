@@ -51,7 +51,7 @@ struct PeopleController {
         
         guard let id = createdPerson.id else {
             //Should not happen since database should add UUID
-            throw Abort(.internalServerError, reason: "Created person missing ID")
+            throw Abort(.internalServerError, reason: "Created Person missing ID")
         }
         
         return CreatePersonResponse(id: id)
