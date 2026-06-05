@@ -39,8 +39,16 @@ final class PantryBatch: Model, @unchecked Sendable {
     init() { }
     
     init(
-        id: UUID? = nil
+        id: UUID? = nil,
+        product: UUID,
+        quantity: Double,
+        source: String,
+        aquiredAt: Date
     ) {
         self.id = id
+        self.$product.id = product
+        self.quantity = quantity
+        self.source = source
+        self.aquiredAt = aquiredAt
     }
 }

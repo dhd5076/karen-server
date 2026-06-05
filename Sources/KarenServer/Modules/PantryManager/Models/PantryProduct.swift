@@ -46,9 +46,19 @@ final class PantryProduct: Model, @unchecked Sendable {
     
     init(
         id: UUID? = nil,
-        name: String
+        name: String,
+        unit: String,
+        proteinPerUnit: Double,
+        carbsPerUnit: Double,
+        fatPerUnit: Double,
+        shelfLife: Int
     ) {
         self.id = id
         self.name = name
+        self.unit = unit
+        self.proteinPerUnit = proteinPerUnit
+        self.carbsPerUnit = carbsPerUnit
+        self.fatPerUnit = fatPerUnit
+        self.shelfLife = shelfLife
     }
 }
