@@ -82,4 +82,15 @@ final class PantryTransaction: Model, @unchecked Sendable {
         self.createdAt = createdAt
         self.note = note
     }
+    
+    func update(from update: PantryTransaction) {
+        self.type = update.type
+        self.$product.id = update.$product.id
+        self.$batch.id = update.$batch.id
+        self.$fromPantry.id = update.$fromPantry.id
+        self.$toPantry.id = update.$toPantry.id
+        self.quantity = update.quantity
+        self.createdAt = update.createdAt
+        self.note = update.note
+    }
 }

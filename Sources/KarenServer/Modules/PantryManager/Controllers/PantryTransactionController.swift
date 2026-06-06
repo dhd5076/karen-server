@@ -8,28 +8,52 @@
 import Vapor
 
 struct PantryTransactionController {
-    
+    //TODO: Make Global
     let pantryService = PantryService()
     
-    func create(req: Request) async throws -> PantryDTO.CreatePantryTransactionResponse{
-        let data = try req.content.decode(PantryDTO.CreatePantryTransactionRequest.self)
+    func create(req: Request) async throws -> PantryDTO.PantryTransaction{
+        let data = try req.content.decode(PantryDTO.PantryTransaction.self)
+    
+        let createdPantryTransaction = try await pantryService.createPantryTransaction(pantryTransaction: data.toModel(), on: req.db)
         
-        let pantryTransaction = PantryTransaction(
-            type: data.type,
-            product: data.product,
-            batch: data.batch,
-            fromPantry: data.fromPantry,
-            toPantry: data.toPantry,
-            quantity: data.quantity,
-            note: data.note
-        )
+        return try PantryDTO.PantryTransaction(model: createdPantryTransaction)
+    }
+    
+    func update(req: Request) async throws -> PantryDTO.PantryTransaction {
+        let data = try req.content.decode(PantryDTO.PantryTransaction.self)
         
-        let createedPantryTransaction = try await pantryService.createPantryTransaction(pantryTransaction: pantryTransaction, on: req.db)
+        let updatedPantryTransaction = try await pantryService.updatePantryTransaction(pantryTransaction: data.toModel(), on: req.db)
         
-        guard let id = createedPantryTransaction.id else {
-            throw Abort(.internalServerError, reason: "Created PantryTransaction missing ID")
+        return try PantryDTO.PantryTransaction(model: updatedPantryTransaction)
+        
+    }
+    
+    func getAll(req: Request) async throws -> [PantryDTO.PantryTransaction] {
+        let pantryTransactions = try await pantryService.getAllPantryTransaction(on: req.db)
+        
+        var response: [PantryDTO.PantryTransaction] = try pantryTransactions.map { pantryTransaction in
+            
+            return try PantryDTO.PantryTransaction(model: pantryTransaction)
         }
         
-        return PantryDTO.CreatePantryTransactionResponse(id: id)
+        return response
+    }
+    
+    func getByID(req: Request) async throws -> PantryDTO.PantryTransaction {
+        guard let id = req.parameters.get("id", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        let pantryTransaction = try await pantryService.getPantryTransactionById(id: id, on: req.db)
+        
+        return try PantryDTO.PantryTransaction(model: pantryTransaction)
+    }
+    
+    func delete(req: Request) async throws {
+        guard let id = req.parameters.get("id", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        try await pantryService.deletePantry(id: id, on: req.db)
     }
 }

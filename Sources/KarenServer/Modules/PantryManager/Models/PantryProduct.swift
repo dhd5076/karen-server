@@ -61,4 +61,13 @@ final class PantryProduct: Model, @unchecked Sendable {
         self.fatPerUnit = fatPerUnit
         self.shelfLife = shelfLife
     }
+    
+    func update(from update: PantryProduct) {
+        self.name = update.name
+        self.unit = update.unit
+        self.proteinPerUnit = self.proteinPerUnit
+        self.carbsPerUnit = self.carbsPerUnit
+        self.fatPerUnit = self.fatPerUnit
+        self.shelfLife = self.shelfLife
+    }
 }

@@ -31,4 +31,8 @@ final class Pantry: Model, @unchecked Sendable {
         self.id = id
         self.name = name
     }
+    
+    func update(from update: Pantry) {
+        self.name = update.name
+    }
 }

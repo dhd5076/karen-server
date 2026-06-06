@@ -8,25 +8,52 @@
 import Vapor
 
 struct PantryBatchController {
-    //TODO: Make global
+    //TODO: Make Global
     let pantryService = PantryService()
     
-    func create(req: Request) async throws -> PantryDTO.CreatePantryBatchResponse{
-        let data = try req.content.decode(PantryDTO.CreatePantryBatchRequest.self)
+    func create(req: Request) async throws -> PantryDTO.PantryBatch {
+        let data = try req.content.decode(PantryDTO.PantryBatch.self)
+    
+        let createdPantryBatch = try await pantryService.createPantryBatch(pantryBatch: data.toModel(), on: req.db)
         
-        let pantryBatch = PantryBatch(
-            product: data.product,
-            quantity: data.quantity,
-            source: data.source,
-            aquiredAt: data.aquiredAt
-        )
+        return try PantryDTO.PantryBatch(model: createdPantryBatch)
+    }
+    
+    func update(req: Request) async throws -> PantryDTO.PantryBatch {
+        let data = try req.content.decode(PantryDTO.PantryBatch.self)
         
-        let createdPantryBatch = try await pantryService.createPantryBatch(pantryBatch: pantryBatch, on: req.db)
+        let updatedPantryBatch = try await pantryService.updatePantryBatch(pantryBatch: data.toModel(), on: req.db)
         
-        guard let id = createdPantryBatch.id else {
-            throw Abort(.internalServerError, reason: "Created PantryBatch missing ID")
+        return try PantryDTO.PantryBatch(model: updatedPantryBatch)
+        
+    }
+    
+    func getAll(req: Request) async throws -> [PantryDTO.PantryBatch] {
+        let pantryBatches = try await pantryService.getAllPantryBatch(on: req.db)
+        
+        var response: [PantryDTO.PantryBatch] = try pantryBatches.map { pantryBatch in
+            
+            return try PantryDTO.PantryBatch(model: pantryBatch)
         }
         
-        return PantryDTO.CreatePantryBatchResponse(id: id)
+        return response
+    }
+    
+    func getByID(req: Request) async throws -> PantryDTO.PantryBatch {
+        guard let id = req.parameters.get("id", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        let pantryBatch = try await pantryService.getPantryBatchById(id: id, on: req.db)
+        
+        return try PantryDTO.PantryBatch(model: pantryBatch)
+    }
+    
+    func delete(req: Request) async throws {
+        guard let id = req.parameters.get("id", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        try await pantryService.deletePantryBatch(id: id, on: req.db)
     }
 }

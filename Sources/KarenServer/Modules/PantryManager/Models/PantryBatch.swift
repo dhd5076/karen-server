@@ -13,15 +13,18 @@ final class PantryBatch: Model, @unchecked Sendable {
     static let schema = "pantry_batch"
     
     enum FieldKeys {
-        static let name: FieldKey = "name"
+        static let pantry: FieldKey = "pantry"
         static let product: FieldKey = "product"
         static let quantity: FieldKey = "quantity"
         static let source: FieldKey = "source"
-        static let aquiredAt: FieldKey = "aquired_at"
+        static let acquiredAt: FieldKey = "acquired_at"
     }
     
     @ID(key: .id)
     var id: UUID?
+    
+    @Parent(key: FieldKeys.pantry)
+    var pantry: Pantry
     
     @Parent(key: FieldKeys.product)
     var product: PantryProduct
@@ -33,22 +36,32 @@ final class PantryBatch: Model, @unchecked Sendable {
     @Field(key: FieldKeys.source)
     var source: String
     
-    @Field(key: FieldKeys.aquiredAt)
-    var aquiredAt: Date
+    @Field(key: FieldKeys.acquiredAt)
+    var acquiredAt: Date
     
     init() { }
     
     init(
         id: UUID? = nil,
+        pantry: UUID,
         product: UUID,
         quantity: Double,
         source: String,
-        aquiredAt: Date
+        acquiredAt: Date
     ) {
         self.id = id
+        self.$pantry.id = pantry
         self.$product.id = product
         self.quantity = quantity
         self.source = source
-        self.aquiredAt = aquiredAt
+        self.acquiredAt = acquiredAt
+    }
+    
+    func update(from update: PantryBatch) {
+        self.$pantry.id = update.$pantry.id
+        self.$product.id = update.$product.id
+        self.quantity = update.quantity
+        self.source = update.source
+        self.acquiredAt = update.acquiredAt
     }
 }

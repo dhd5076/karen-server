@@ -9,9 +9,11 @@ import Foundation
 import Fluent
 import Vapor
 
+
 struct PantryService {
     
-    //TODO: Implement get, update, delete etc
+    //TODO: Implement update
+    //TODO: Implement delete, get, update in controllers
     
     // MARK: - Pantry
     
@@ -21,11 +23,30 @@ struct PantryService {
         return pantry
     }
     
-    func deletePantry(id: UUID, on db: any Database) async throws {
-        guard let pantry = try await Pantry.query(on: db)
-            .filter(\.$id == id).first() else {
+    func getAllPantry(on db: any Database) async throws -> [Pantry] {
+        return try await Pantry.query(on: db).all()
+    }
+    
+    func getPantryById(id: UUID, on db: any Database) async throws -> Pantry {
+        guard let pantry = try await Pantry.find(id, on: db) else {
             throw Abort(.notFound, reason: "Pantry with ID doesn't exist")
         }
+        
+        return pantry
+    }
+    
+    func updatePantry(pantry: Pantry, on db: any Database) async throws -> Pantry {
+        let existingPantry = try await getPantryById(id: try pantry.requireID(), on: db)
+        
+        existingPantry.update(from: pantry)
+        
+        try await existingPantry.update(on: db)
+        
+        return existingPantry
+    }
+    
+    func deletePantry(id: UUID, on db: any Database) async throws {
+        let pantry = try await getPantryById(id: id, on: db)
         
         try await pantry.delete(on: db)
     }
@@ -38,11 +59,30 @@ struct PantryService {
         return pantryBatch
     }
     
-    func deletePantryBatch(id: UUID, on db: any Database) async throws {
-        guard let pantryBatch = try await PantryBatch.query(on: db)
-            .filter(\.$id == id).first() else {
+    func getAllPantryBatch(on db: any Database) async throws -> [PantryBatch] {
+        return try await PantryBatch.query(on: db).all()
+    }
+    
+    func getPantryBatchById(id: UUID, on db: any Database) async throws -> PantryBatch {
+        guard let pantryBatch = try await PantryBatch.find(id, on: db) else {
             throw Abort(.notFound, reason: "PantryBatch with ID doesn't exist")
         }
+        
+        return pantryBatch
+    }
+    
+    func updatePantryBatch(pantryBatch: PantryBatch, on db: any Database) async throws -> PantryBatch {
+        let existingPantryBatch = try await getPantryBatchById(id: try pantryBatch.requireID(), on: db)
+        
+        existingPantryBatch.update(from: pantryBatch) //TODO: naming collision, should maybe rename .update, works now due to signature
+        
+        try await existingPantryBatch.update(on: db)
+        
+        return existingPantryBatch
+    }
+    
+    func deletePantryBatch(id: UUID, on db: any Database) async throws {
+        let pantryBatch = try await getPantryBatchById(id: id, on: db)
         
         try await pantryBatch.delete(on: db)
     }
@@ -55,11 +95,31 @@ struct PantryService {
         return pantryProduct
     }
     
-    func deletePantryProduct(id: UUID, on db: any Database) async throws {
-        guard let pantryProduct = try await PantryProduct.query(on: db)
-            .filter(\.$id == id).first() else {
+    func getAllPantryProduct(on db: any Database) async throws -> [PantryProduct] {
+        return try await PantryProduct.query(on: db).all()
+    }
+    
+    func getPantryProductById(id: UUID, on db: any Database) async throws -> PantryProduct {
+        guard let pantryProduct = try await PantryProduct.find(id, on: db) else {
             throw Abort(.notFound, reason: "PantryProduct with ID doesn't exist")
         }
+        
+        return pantryProduct
+            
+    }
+    
+    func updatePantryProduct(pantryProduct: PantryProduct, on db: any Database) async throws -> PantryProduct {
+        let existingPantryProduct = try await getPantryProductById(id: try pantryProduct.requireID(), on: db)
+        
+        existingPantryProduct.update(from: pantryProduct)
+        
+        try await existingPantryProduct.update(on: db)
+        
+        return existingPantryProduct
+    }
+    
+    func deletePantryProduct(id: UUID, on db: any Database) async throws {
+        let pantryProduct = try await getPantryProductById(id: id, on: db)
         
         try await pantryProduct.delete(on: db)
     }
@@ -72,11 +132,30 @@ struct PantryService {
         return pantryTransaction
     }
     
-    func deletePantryTransaction(id: UUID, on db: any Database) async throws {
-        guard let pantryTransaction = try await PantryTransaction.query(on: db)
-            .filter(\.$id == id).first() else {
+    func getAllPantryTransaction(on db: any Database) async throws -> [PantryTransaction] {
+        return try await PantryTransaction.query(on: db).all()
+    }
+    
+    func getPantryTransactionById(id: UUID, on db: any Database) async throws -> PantryTransaction {
+        guard let pantryTransaction = try await PantryTransaction.find(id, on: db) else {
             throw Abort(.notFound, reason: "PantryTransaction with ID doesn't exist")
         }
+        
+        return pantryTransaction
+    }
+    
+    func updatePantryTransaction(pantryTransaction: PantryTransaction, on db: any Database) async throws -> PantryTransaction  {
+        let existingPantryTransaction = try await getPantryTransactionById(id: pantryTransaction.requireID(), on: db)
+        
+        existingPantryTransaction.update(from: pantryTransaction)
+        
+        try await existingPantryTransaction.update(on: db)
+        
+        return existingPantryTransaction
+    }
+    
+    func deletePantryTransaction(id: UUID, on db: any Database) async throws {
+        let pantryTransaction = try await getPantryTransactionById(id: id, on: db)
         
         try await pantryTransaction.delete(on: db)
     }

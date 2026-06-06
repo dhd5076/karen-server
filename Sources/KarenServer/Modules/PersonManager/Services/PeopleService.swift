@@ -19,15 +19,10 @@ struct PeopleService {
     }
     
     func updatePerson(person: Person, on db: any Database) async throws -> Person {
-        //TODO: This whole function likely needs to be refactored
-        //This function should take in a ID Param?? and/or we need to change how frontend passes id since route is /person/{IDParam}, ID should probably not be passed in body or at least its redundant and doesn't match RESTful conventions
-        guard let id = person.id else {
-            throw Abort(.notFound, reason: "Person with ID doesn't exist")
-        }
         
         //TODO: Finish Implementation
         guard var originalPerson = try await Person.query(on: db)
-            .filter(\.$id == id).first() else {
+            .filter(\.$id == person.requireID()).first() else {
                 throw Abort(.notFound, reason: "Person with ID doesn't exist")
             }
         
