@@ -7,9 +7,17 @@
 
 import Vapor
 
-struct PantryBatchController {
+struct PantryBatchController: RouteCollection {
     //TODO: Make Global
     let pantryService = PantryService()
+    let baseRoute: PathComponent = "batches"
+    
+    func boot(routes: any RoutesBuilder) throws {
+        routes.post(baseRoute, use: self.create)
+        routes.get(baseRoute, use: self.getAll)
+        routes.get(baseRoute, .parameter("id"), use: getByID)
+        routes.delete(baseRoute, .parameter("id"), use: delete)
+    }
     
     func create(req: Request) async throws -> PantryDTO.PantryBatch {
         let data = try req.content.decode(PantryDTO.PantryBatch.self)
@@ -49,11 +57,13 @@ struct PantryBatchController {
         return try PantryDTO.PantryBatch(model: pantryBatch)
     }
     
-    func delete(req: Request) async throws {
+    func delete(req: Request) async throws -> HTTPStatus{
         guard let id = req.parameters.get("id", as: UUID.self) else {
             throw Abort(.badRequest)
         }
         
         try await pantryService.deletePantryBatch(id: id, on: req.db)
+        
+        return .noContent
     }
 }

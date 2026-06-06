@@ -17,11 +17,10 @@ struct CreatePantryTables: AsyncMigration {
         
         try await database.schema(PantryBatch.schema)
             .id()
-            .field(PantryBatch.FieldKeys.name, .string, .required)
             .field(PantryBatch.FieldKeys.product, .uuid, .required, .references(PantryProduct.schema,"id"))
             .field(PantryBatch.FieldKeys.quantity, .double, .required)
             .field(PantryBatch.FieldKeys.source, .string, .required)
-            .field(PantryBatch.FieldKeys.aquiredAt, .datetime, .required)
+            .field(PantryBatch.FieldKeys.acquiredAt, .datetime, .required)
             .create()
         
         try await database.schema(PantryProduct.schema)
