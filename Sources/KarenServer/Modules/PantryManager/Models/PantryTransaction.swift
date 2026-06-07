@@ -7,14 +7,7 @@
 
 import Fluent
 import Vapor
-
-enum PantryTransactionType: String, Codable {
-    case add
-    case consume
-    case transfer
-    case adjust
-    case spoil
-}
+import KarenShared
 
 final class PantryTransaction: Model, @unchecked Sendable {
     

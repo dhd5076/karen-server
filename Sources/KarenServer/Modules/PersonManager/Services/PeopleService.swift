@@ -21,7 +21,7 @@ struct PeopleService {
     func updatePerson(person: Person, on db: any Database) async throws -> Person {
         
         //TODO: Finish Implementation
-        guard var originalPerson = try await Person.query(on: db)
+        guard let originalPerson = try await Person.query(on: db)
             .filter(\.$id == person.requireID()).first() else {
                 throw Abort(.notFound, reason: "Person with ID doesn't exist")
             }

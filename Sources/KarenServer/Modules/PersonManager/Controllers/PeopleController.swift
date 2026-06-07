@@ -61,7 +61,7 @@ struct PeopleController {
         
         let people = try await peopleService.getAll(on: req.db)
         
-        var peopleResponse: [PersonResponse] = try people.map { person in
+        let peopleResponse: [PersonResponse] = try people.map { person in
             
             guard let id = person.id else {
                 throw Abort(.internalServerError, reason: "Person missing ID")
