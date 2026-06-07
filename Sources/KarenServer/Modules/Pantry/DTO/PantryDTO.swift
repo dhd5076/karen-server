@@ -8,9 +8,9 @@
 import Vapor
 import KarenShared
 
-extension KarenShared.Pantry.DTO: @retroactive Content {}
+extension KarenShared.Pantry: @retroactive Content {}
 
-extension KarenShared.Pantry.DTO {
+extension KarenShared.Pantry {
     init(model: KarenServer.Pantry) throws {
         self.init(
             id: try model.requireID(),

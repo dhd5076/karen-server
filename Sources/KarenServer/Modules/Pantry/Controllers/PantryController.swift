@@ -21,40 +21,40 @@ struct PantryController: RouteCollection {
         routes.delete(baseRoute, .parameter("id"), use: delete)
     }
     
-    func create(req: Request) async throws -> KarenShared.Pantry.DTO{
-        let data = try req.content.decode(KarenShared.Pantry.DTO.self)
+    func create(req: Request) async throws -> KarenShared.Pantry {
+        let data = try req.content.decode(KarenShared.Pantry.self)
     
         let createdPantry = try await pantryService.createPantry(pantry: data.toModel(), on: req.db)
         
-        return try KarenShared.Pantry.DTO(model: createdPantry)
+        return try KarenShared.Pantry(model: createdPantry)
     }
     
-    func update(req: Request) async throws -> KarenShared.Pantry.DTO{
-        let data = try req.content.decode(KarenShared.Pantry.DTO.self)
+    func update(req: Request) async throws -> KarenShared.Pantry {
+        let data = try req.content.decode(KarenShared.Pantry.self)
         
         let updatedPantry = try await pantryService.updatePantry(pantry: data.toModel(), on: req.db)
         
-        return try KarenShared.Pantry.DTO(model: updatedPantry)
+        return try KarenShared.Pantry(model: updatedPantry)
         
     }
     
-    func getAll(req: Request) async throws -> [KarenShared.Pantry.DTO] {
+    func getAll(req: Request) async throws -> [KarenShared.Pantry] {
         let pantries = try await pantryService.getAllPantry(on: req.db)
         
-        let response: [KarenShared.Pantry.DTO] = try pantries.map { pantry in
+        let response: [KarenShared.Pantry] = try pantries.map { pantry in
             
-            return try KarenShared.Pantry.DTO(model: pantry)
+            return try KarenShared.Pantry(model: pantry)
         }
         
         return response
     }
     
-    func getByID(req: Request) async throws -> KarenShared.Pantry.DTO{
+    func getByID(req: Request) async throws -> KarenShared.Pantry {
         let id = try req.parameters.require("id", as: UUID.self)
         
         let pantry = try await pantryService.getPantryById(id: id, on: req.db)
         
-        return try KarenShared.Pantry.DTO(model: pantry)
+        return try KarenShared.Pantry(model: pantry)
     }
     
     func delete(req: Request) async throws -> HTTPStatus {

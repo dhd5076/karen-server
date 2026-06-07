@@ -23,6 +23,6 @@ func routes(_ app: Application) throws {
     app.get("people", ":personID", use: peopleController.getByID) //TODO: change to :id
     app.post("people", use: peopleController.create)
 
-    try app.register(collection: PantryManagerRoutes())
+    try app.register(collection: PantryRoutes())
 
 }

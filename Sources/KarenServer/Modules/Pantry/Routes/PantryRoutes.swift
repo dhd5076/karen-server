@@ -6,7 +6,7 @@
 //
 import Vapor
 
-struct PantryManagerRoutes: RouteCollection {
+struct PantryRoutes: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let pantryManager = routes.grouped("pantry")
 
