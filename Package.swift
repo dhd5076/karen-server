@@ -16,7 +16,8 @@ let package = Package(
         // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         
-        .package(path: "../karen-lib")
+        //KarenShared
+        .package(url: "https://github.com/dhd5076/karen-lib.git", branch: "main")
     ],
     targets: [
         .executableTarget(
