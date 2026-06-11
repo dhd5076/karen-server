@@ -15,14 +15,6 @@ struct CreatePantryTables: AsyncMigration {
             .field(Pantry.FieldKeys.name, .string, .required)
             .create()
         
-        try await database.schema(PantryBatch.schema)
-            .id()
-            .field(PantryBatch.FieldKeys.product, .uuid, .required, .references(PantryProduct.schema,"id"))
-            .field(PantryBatch.FieldKeys.quantity, .double, .required)
-            .field(PantryBatch.FieldKeys.source, .string, .required)
-            .field(PantryBatch.FieldKeys.acquiredAt, .datetime, .required)
-            .create()
-        
         try await database.schema(PantryProduct.schema)
             .id()
             .field(PantryProduct.FieldKeys.name, .string, .required)
@@ -31,6 +23,14 @@ struct CreatePantryTables: AsyncMigration {
             .field(PantryProduct.FieldKeys.carbsPerUnit, .double, .required)
             .field(PantryProduct.FieldKeys.fatPerUnit, .double, .required)
             .field(PantryProduct.FieldKeys.shelfLife, .int, .required)
+            .create()
+        
+        try await database.schema(PantryBatch.schema)
+            .id()
+            .field(PantryBatch.FieldKeys.product, .uuid, .required, .references(PantryProduct.schema,"id"))
+            .field(PantryBatch.FieldKeys.quantity, .double, .required)
+            .field(PantryBatch.FieldKeys.source, .string, .required)
+            .field(PantryBatch.FieldKeys.acquiredAt, .datetime, .required)
             .create()
         
         try await database.schema(PantryTransaction.schema)
@@ -47,9 +47,9 @@ struct CreatePantryTables: AsyncMigration {
     }
     
     func revert(on database: any Database) async throws {
-        try await database.schema(Pantry.schema).delete()
+        try await database.schema(PantryTransaction.schema).delete()
         try await database.schema(PantryBatch.schema).delete()
         try await database.schema(PantryProduct.schema).delete()
-        try await database.schema(PantryTransaction.schema).delete()
+        try await database.schema(Pantry.schema).delete()
     }
 }
