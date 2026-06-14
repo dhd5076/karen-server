@@ -21,42 +21,42 @@ struct PantryBatchController: RouteCollection {
         routes.delete(baseRoute, .parameter("id"), use: delete)
     }
     
-    func create(req: Request) async throws -> KarenShared.PantryBatch.DTO {
-        let data = try req.content.decode(KarenShared.PantryBatch.DTO.self)
+    func create(req: Request) async throws -> KarenShared.PantryBatch {
+        let data = try req.content.decode(KarenShared.PantryBatch.self)
     
         let createdPantryBatch = try await pantryService.createPantryBatch(pantryBatch: data.toModel(), on: req.db)
         
-        return try KarenShared.PantryBatch.DTO(model: createdPantryBatch)
+        return try KarenShared.PantryBatch(model: createdPantryBatch)
     }
     
-    func update(req: Request) async throws -> KarenShared.PantryBatch.DTO {
-        let data = try req.content.decode(KarenShared.PantryBatch.DTO.self)
+    func update(req: Request) async throws -> KarenShared.PantryBatch {
+        let data = try req.content.decode(KarenShared.PantryBatch.self)
         
         let updatedPantryBatch = try await pantryService.updatePantryBatch(pantryBatch: data.toModel(), on: req.db)
         
-        return try KarenShared.PantryBatch.DTO(model: updatedPantryBatch)
+        return try KarenShared.PantryBatch(model: updatedPantryBatch)
         
     }
     
-    func getAll(req: Request) async throws -> [KarenShared.PantryBatch.DTO] {
+    func getAll(req: Request) async throws -> [KarenShared.PantryBatch] {
         let pantryBatches = try await pantryService.getAllPantryBatch(on: req.db)
         
-        let response: [KarenShared.PantryBatch.DTO] = try pantryBatches.map { pantryBatch in
+        let response: [KarenShared.PantryBatch] = try pantryBatches.map { pantryBatch in
             
-            return try KarenShared.PantryBatch.DTO(model: pantryBatch)
+            return try KarenShared.PantryBatch(model: pantryBatch)
         }
         
         return response
     }
     
-    func getByID(req: Request) async throws -> KarenShared.PantryBatch.DTO{
+    func getByID(req: Request) async throws -> KarenShared.PantryBatch{
         guard let id = req.parameters.get("id", as: UUID.self) else {
             throw Abort(.badRequest)
         }
         
         let pantryBatch = try await pantryService.getPantryBatchById(id: id, on: req.db)
         
-        return try KarenShared.PantryBatch.DTO(model: pantryBatch)
+        return try KarenShared.PantryBatch(model: pantryBatch)
     }
     
     func delete(req: Request) async throws -> HTTPStatus{

@@ -21,42 +21,42 @@ struct PantryProductController: RouteCollection {
         routes.delete(baseRoute, .parameter("id"), use: delete)
     }
     
-    func create(req: Request) async throws -> KarenShared.PantryProduct.DTO {
-        let data = try req.content.decode(KarenShared.PantryProduct.DTO.self)
+    func create(req: Request) async throws -> KarenShared.PantryProduct {
+        let data = try req.content.decode(KarenShared.PantryProduct.self)
     
         let createdPantryProduct = try await pantryService.createPantryProduct(pantryProduct: data.toModel(), on: req.db)
         
-        return try KarenShared.PantryProduct.DTO(model: createdPantryProduct)
+        return try KarenShared.PantryProduct(model: createdPantryProduct)
     }
     
-    func update(req: Request) async throws -> KarenShared.PantryProduct.DTO {
-        let data = try req.content.decode(KarenShared.PantryProduct.DTO.self)
+    func update(req: Request) async throws -> KarenShared.PantryProduct{
+        let data = try req.content.decode(KarenShared.PantryProduct.self)
         
         let updatedPantryProduct = try await pantryService.updatePantryProduct(pantryProduct: data.toModel(), on: req.db)
         
-        return try KarenShared.PantryProduct.DTO(model: updatedPantryProduct)
+        return try KarenShared.PantryProduct(model: updatedPantryProduct)
         
     }
     
-    func getAll(req: Request) async throws -> [KarenShared.PantryProduct.DTO] {
+    func getAll(req: Request) async throws -> [KarenShared.PantryProduct] {
         let pantryProducts = try await pantryService.getAllPantryProduct(on: req.db)
         
-        let response: [KarenShared.PantryProduct.DTO] = try pantryProducts.map { pantryProduct in
+        let response: [KarenShared.PantryProduct] = try pantryProducts.map { pantryProduct in
             
-            return try KarenShared.PantryProduct.DTO(model: pantryProduct)
+            return try KarenShared.PantryProduct(model: pantryProduct)
         }
         
         return response
     }
     
-    func getByID(req: Request) async throws -> KarenShared.PantryProduct.DTO {
+    func getByID(req: Request) async throws -> KarenShared.PantryProduct {
         guard let id = req.parameters.get("id", as: UUID.self) else {
             throw Abort(.badRequest)
         }
         
         let pantryProduct = try await pantryService.getPantryProductById(id: id, on: req.db)
         
-        return try KarenShared.PantryProduct.DTO(model: pantryProduct)
+        return try KarenShared.PantryProduct(model: pantryProduct)
     }
     
     func delete(req: Request) async throws -> HTTPStatus {

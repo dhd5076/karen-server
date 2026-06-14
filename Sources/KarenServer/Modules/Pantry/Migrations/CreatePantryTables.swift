@@ -27,6 +27,7 @@ struct CreatePantryTables: AsyncMigration {
         
         try await database.schema(PantryBatch.schema)
             .id()
+            .field(PantryBatch.FieldKeys.pantry, .uuid, .required, .references(Pantry.schema, "id"))
             .field(PantryBatch.FieldKeys.product, .uuid, .required, .references(PantryProduct.schema,"id"))
             .field(PantryBatch.FieldKeys.quantity, .double, .required)
             .field(PantryBatch.FieldKeys.source, .string, .required)

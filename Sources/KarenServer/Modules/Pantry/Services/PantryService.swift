@@ -8,6 +8,7 @@
 import Foundation
 import Fluent
 import Vapor
+import KarenShared
 
 
 struct PantryService {
@@ -158,5 +159,36 @@ struct PantryService {
         let pantryTransaction = try await getPantryTransactionById(id: id, on: db)
         
         try await pantryTransaction.delete(on: db)
+    }
+    
+    //Misc. Functions
+    
+    func addBatchToPantry(pantryId: UUID, request: KarenShared.AddBatchToPantryRequest, on db: any Database) async throws -> PantryBatch {
+        guard request.quantity > 0 else {
+            throw Abort(.badRequest, reason: "Quantity must be greater than zero")
+        }
+        
+        let pantryBatch = PantryBatch(
+            pantry: pantryId,
+            product: request.product,
+            quantity: request.quantity,
+            source: request.source,
+            acquiredAt: request.acquiredAt ?? Date()
+        )
+        
+        let createdBatch = try await createPantryBatch(pantryBatch: pantryBatch, on: db)
+        
+        let transaction = PantryTransaction(
+            type: .add,
+            product: request.product,
+            batch: try createdBatch.requireID(),
+            toPantry: pantryId,
+            quantity: request.quantity,
+            note: request.note
+        )
+        
+        _ = try await createPantryTransaction(pantryTransaction: transaction, on: db)
+        
+        return createdBatch
     }
 }

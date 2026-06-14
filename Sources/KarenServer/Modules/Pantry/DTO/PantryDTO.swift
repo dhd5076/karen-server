@@ -26,9 +26,9 @@ extension KarenShared.Pantry {
     }
 }
 
-extension KarenShared.PantryBatch.DTO: @retroactive Content {}
+extension KarenShared.PantryBatch: @retroactive Content {}
 
-extension KarenShared.PantryBatch.DTO {
+extension KarenShared.PantryBatch {
     init(model: KarenServer.PantryBatch) throws {
         self.init(
             id: try model.requireID(),
@@ -52,9 +52,9 @@ extension KarenShared.PantryBatch.DTO {
     }
 }
 
-extension KarenShared.PantryProduct.DTO: @retroactive Content {}
+extension KarenShared.PantryProduct: @retroactive Content {}
 
-extension KarenShared.PantryProduct.DTO {
+extension KarenShared.PantryProduct {
     init(model: KarenServer.PantryProduct) throws {
         self.init(
             id: try model.requireID(),
@@ -110,3 +110,6 @@ extension KarenShared.PantryTransaction.DTO {
         )
     }
 }
+
+extension AddBatchToPantryRequest: @retroactive Content {}
+
