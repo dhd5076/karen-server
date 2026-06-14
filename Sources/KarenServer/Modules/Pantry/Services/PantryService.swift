@@ -174,7 +174,7 @@ struct PantryService {
             quantity: request.quantity,
             source: request.source,
             acquiredAt: request.acquiredAt ?? Date()
-        )
+        ) //TODO: Verify pantry and product exist??
         
         let createdBatch = try await createPantryBatch(pantryBatch: pantryBatch, on: db)
         
@@ -190,5 +190,13 @@ struct PantryService {
         _ = try await createPantryTransaction(pantryTransaction: transaction, on: db)
         
         return createdBatch
+    }
+    
+    func getPantryBatches(pantryId: UUID, on db: any Database) async throws -> [PantryBatch] {
+        _ = try await getPantryById(id: pantryId, on: db)
+        
+        return try await PantryBatch.query(on: db)
+            .filter(\.$pantry.$id == pantryId)
+            .all()
     }
 }

@@ -20,7 +20,8 @@ struct PantryController: RouteCollection {
         routes.put(baseRoute, .parameter("id"), use: update)
         routes.delete(baseRoute, .parameter("id"), use: delete)
         
-        routes.post(baseRoute, .parameter("id"), "add", use: addBatchToPantry)
+        routes.post(baseRoute, .parameter("id"), "add", use: addBatch)
+        routes.get(baseRoute, .parameter("id"), "batches", use: getBatches)
     }
     
     func create(req: Request) async throws -> KarenShared.Pantry {
@@ -67,7 +68,7 @@ struct PantryController: RouteCollection {
         return .noContent
     }
     
-    func addBatchToPantry(req: Request) async throws -> KarenShared.PantryBatch {
+    func addBatch(req: Request) async throws -> KarenShared.PantryBatch {
         let pantryId = try req.parameters.require("id", as: UUID.self)
         let data = try req.content.decode(KarenShared.AddBatchToPantryRequest.self)
         
@@ -78,5 +79,15 @@ struct PantryController: RouteCollection {
         )
         
         return try KarenShared.PantryBatch(model: createdBatch)
+    }
+    
+    func getBatches(req: Request) async throws -> [KarenShared.PantryBatch] {
+        let pantryId = try req.parameters.require("id", as: UUID.self)
+        
+        let batches = try await pantryService.getPantryBatches(pantryId: pantryId, on: req.db)
+        
+        return try batches.map { batch in
+            try KarenShared.PantryBatch(model: batch)
+        }
     }
 }
