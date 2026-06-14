@@ -24,5 +24,6 @@ func routes(_ app: Application) throws {
     app.post("people", use: peopleController.create)
 
     try app.register(collection: PantryRoutes())
+    try app.register(collection: TaskRoutes())
 
 }

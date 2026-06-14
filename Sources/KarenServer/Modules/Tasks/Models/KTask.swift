@@ -8,16 +8,16 @@
 import Fluent
 import Vapor
 
-final class KarenTask: Model, @unchecked Sendable {
+final class KTask: Model, @unchecked Sendable {
     
-    static let schema = "task"
+    static let schema = "tasks"
     
     enum FieldKeys {
         static let title: FieldKey = "title"
         static let notes: FieldKey = "notes"
-        static let dueAt: FieldKey = "dueAt"
-        static let isCompleted: FieldKey = "isCompleted"
-        static let completedAt: FieldKey = "completedAt"
+        static let dueAt: FieldKey = "due_at"
+        static let isCompleted: FieldKey = "is_completed"
+        static let completedAt: FieldKey = "completed_at"
         static let source: FieldKey = "source"
     }
     
@@ -30,14 +30,14 @@ final class KarenTask: Model, @unchecked Sendable {
     @Field(key: FieldKeys.notes)
     var notes: String
     
-    @Field(key: FieldKeys.dueAt)
-    var dueAt: Date
+    @OptionalField(key: FieldKeys.dueAt)
+    var dueAt: Date?
     
     @Field(key: FieldKeys.isCompleted)
     var isCompleted: Bool
     
-    @Field(key: FieldKeys.completedAt)
-    var completedAt: Date
+    @OptionalField(key: FieldKeys.completedAt)
+    var completedAt: Date?
     
     @Field(key: FieldKeys.source)
     var source: String
@@ -48,16 +48,27 @@ final class KarenTask: Model, @unchecked Sendable {
         id: UUID? = nil,
         title: String,
         notes: String,
-        dueAt: Date,
+        dueAt: Date? = nil,
         isCompleted: Bool,
-        completedAt: Date,
+        completedAt: Date?,
         source: String
     ) {
+        self.id = id
         self.title = title
         self.notes = notes
         self.dueAt = dueAt
         self.isCompleted = isCompleted
         self.completedAt = completedAt
         self.source = source
+    }
+    
+    func update(from update: KTask) {
+        //TODO: can we cast to make this simpler??
+        self.title = update.title
+        self.notes = update.notes
+        self.dueAt = update.dueAt
+        self.isCompleted = update.isCompleted
+        self.completedAt = update.completedAt
+        self.source = update.source
     }
 }

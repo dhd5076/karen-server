@@ -13,9 +13,6 @@ import KarenShared
 
 struct PantryService {
     
-    //TODO: Implement update
-    //TODO: Implement delete, get, update in controllers
-    
     // MARK: - Pantry
     
     func createPantry(pantry: Pantry, on db: any Database) async throws -> Pantry {
