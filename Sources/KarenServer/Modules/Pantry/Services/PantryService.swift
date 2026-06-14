@@ -85,7 +85,49 @@ struct PantryService {
     func deletePantryBatch(id: UUID, on db: any Database) async throws {
         let pantryBatch = try await getPantryBatchById(id: id, on: db)
         
+        let transactions = try await PantryTransaction.query(on: db) //TODO: This is a little bit janky, need a better way to handle delete
+                .filter(\.$batch.$id == id)
+                .all()
+
+        try await transactions.delete(on: db)
         try await pantryBatch.delete(on: db)
+    }
+
+    func consumePantryBatch(
+        batchId: UUID,
+        request: KarenShared.ConsumePantryBatchRequest,
+        on db: any Database
+    ) async throws -> PantryBatch {
+        guard request.quantity > 0 else {
+            throw Abort(.badRequest, reason: "Quantity must be greater than zero")
+        }
+
+        let batch = try await getPantryBatchById(id: batchId, on: db)
+
+        guard request.quantity <= batch.quantity else {
+            throw Abort(.badRequest, reason: "Cannot consume more than the batch quantity")
+        }
+
+        batch.quantity -= request.quantity
+
+        if batch.quantity < 0.000001 {
+            batch.quantity = 0
+        }
+
+        try await batch.update(on: db)
+
+        let transaction = PantryTransaction(
+            type: .consume,
+            product: batch.$product.id,
+            batch: try batch.requireID(),
+            fromPantry: batch.$pantry.id,
+            quantity: request.quantity,
+            note: request.note
+        )
+
+        _ = try await createPantryTransaction(pantryTransaction: transaction, on: db)
+
+        return batch
     }
     
     // MARK: - Product
@@ -197,6 +239,7 @@ struct PantryService {
         
         return try await PantryBatch.query(on: db)
             .filter(\.$pantry.$id == pantryId)
+            .filter(\.$quantity > 0)
             .all()
     }
 }

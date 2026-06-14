@@ -19,6 +19,7 @@ struct PantryBatchController: RouteCollection {
         routes.get(baseRoute, .parameter("id"), use: getByID)
         routes.put(baseRoute, .parameter("id"), use: update)
         routes.delete(baseRoute, .parameter("id"), use: delete)
+        routes.post(baseRoute, .parameter("id"), "consume", use: consume)
     }
     
     func create(req: Request) async throws -> KarenShared.PantryBatch {
@@ -65,5 +66,18 @@ struct PantryBatchController: RouteCollection {
         try await pantryService.deletePantryBatch(id: id, on: req.db)
         
         return .noContent
+    }
+
+    func consume(req: Request) async throws -> KarenShared.PantryBatch {
+        let id = try req.parameters.require("id", as: UUID.self)
+        let data = try req.content.decode(KarenShared.ConsumePantryBatchRequest.self)
+
+        let updatedBatch = try await pantryService.consumePantryBatch(
+            batchId: id,
+            request: data,
+            on: req.db
+        )
+
+        return try KarenShared.PantryBatch(model: updatedBatch)
     }
 }
