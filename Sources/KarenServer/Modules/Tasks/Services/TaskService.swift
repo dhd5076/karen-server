@@ -9,6 +9,7 @@ import Foundation
 import Fluent
 import Vapor
 import KarenShared
+//TODO: 
 
 struct TaskService {
     // MARK: - KTask
@@ -25,7 +26,7 @@ struct TaskService {
     
     func getTaskById(id: UUID, on db: any Database) async throws -> KTask {
         guard let task = try await KTask.find(id, on: db) else {
-            throw Abort(.badRequest, reason: "Task with ID doesn't exist")
+            throw Abort(.notFound, reason: "Task with ID doesn't exist")
         }
         
         return task
