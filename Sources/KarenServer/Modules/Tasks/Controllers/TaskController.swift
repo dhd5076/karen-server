@@ -19,6 +19,8 @@ struct TaskController: RouteCollection {
         routes.get(baseRoute, .parameter("id"), use: getByID)
         routes.put(baseRoute, .parameter("id"), use: update)
         routes.delete(baseRoute, .parameter("id"), use: delete)
+        
+        routes.post(baseRoute, .parameter("id"), "toggle-complete", use: toggleComplete(req:))
     }
     
     func create(req: Request) async throws -> KarenShared.KTask {
@@ -61,6 +63,14 @@ struct TaskController: RouteCollection {
         let id = try req.parameters.require("id", as: UUID.self)
         
         try await taskService.deleteTask(id: id, on: req.db)
+        
+        return .noContent
+    }
+    
+    func toggleComplete(req: Request) async throws -> HTTPStatus {
+        let id = try req.parameters.require("id", as: UUID.self)
+        
+        try await taskService.toggleCompleteTask(id: id, on: req.db)
         
         return .noContent
     }

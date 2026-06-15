@@ -47,4 +47,13 @@ struct TaskService {
         
         try await task.delete(on: db)
     }
+    
+    func toggleCompleteTask(id: UUID, on db: any Database) async throws {
+        let taskToComplete = try await getTaskById(id: id, on: db)
+        
+        taskToComplete.isCompleted.toggle()
+        taskToComplete.completedAt = taskToComplete.isCompleted ? Date() : nil
+        
+        try await taskToComplete.save(on: db)
+    }
 }
