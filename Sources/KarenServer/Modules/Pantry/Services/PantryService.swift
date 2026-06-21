@@ -240,6 +240,7 @@ struct PantryService {
             .all()
     }
     
+    //TODO: Consider moving the following overview functions into a /pantry and /pantry/:id and change the DTO to match, or add an additional ?detailed=true specifier??
     func getOverviewById(pantryId: UUID, on db: any Database) async throws -> PantryOverview {
         let batches = try await getPantryBatches(pantryId: pantryId, on: db)
         let products = try await getAllPantryProduct(on: db)
