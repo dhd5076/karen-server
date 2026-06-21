@@ -239,4 +239,55 @@ struct PantryService {
             .filter(\.$quantity > 0)
             .all()
     }
+    
+    func getOverviewById(pantryId: UUID, on db: any Database) async throws -> PantryOverview {
+        let batches = try await getPantryBatches(pantryId: pantryId, on: db)
+        let products = try await getAllPantryProduct(on: db)
+        
+        return try calculateOverview(
+            batches: batches,
+            products: products
+        )
+    }
+    
+    func getOverview(on db: any Database) async throws -> PantryOverview {
+        let batches = try await getAllPantryBatch(on: db)
+            .filter { $0.quantity > 0 }
+        let products = try await getAllPantryProduct(on: db)
+        
+        return try calculateOverview(
+            batches: batches,
+            products: products
+        )
+    }
+    
+    private func calculateOverview(batches: [PantryBatch], products: [PantryProduct]) throws -> PantryOverview {
+        let productsById = Dictionary( // Can't call async inside reduce closure, also reduces database queries.
+            uniqueKeysWithValues: try products.map { product in
+                (try product.requireID(), product)
+            }
+        )
+        
+        let totals = try batches.reduce((
+            protein: 0.0,
+            carbs: 0.0,
+            fat: 0.0
+        )) { totals, batch in
+            guard let product = productsById[batch.$product.id] else {
+                throw Abort(.internalServerError, reason: "Batch references missing product")
+            }
+            
+            return (
+                protein: totals.protein + product.proteinPerUnit * batch.quantity,
+                carbs: totals.carbs + product.carbsPerUnit * batch.quantity,
+                fat: totals.fat + product.fatPerUnit * batch.quantity
+            )
+        }
+        
+        return PantryOverview(
+            proteinGrams: totals.protein,
+            carbsGrams: totals.carbs,
+            fatGrams: totals.fat
+        )
+    }
 }

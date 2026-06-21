@@ -114,3 +114,5 @@ extension KarenShared.PantryTransaction.DTO {
 extension AddBatchToPantryRequest: @retroactive Content {}
 
 extension ConsumePantryBatchRequest: @retroactive Content {}
+
+extension KarenShared.PantryOverview: @retroactive Content {}

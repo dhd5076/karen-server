@@ -16,12 +16,14 @@ struct PantryController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         routes.post(baseRoute, use: self.create)
         routes.get(baseRoute, use: self.getAll)
+        routes.get(baseRoute, "overview", use: getOverviewOfAll)
         routes.get(baseRoute, .parameter("id"), use: getByID)
         routes.put(baseRoute, .parameter("id"), use: update)
         routes.delete(baseRoute, .parameter("id"), use: delete)
         
         routes.post(baseRoute, .parameter("id"), "add", use: addBatch)
         routes.get(baseRoute, .parameter("id"), "batches", use: getBatches)
+        routes.get(baseRoute, .parameter("id"), "overview", use: getOverviewByPantryID)
     }
     
     func create(req: Request) async throws -> KarenShared.Pantry {
@@ -89,5 +91,15 @@ struct PantryController: RouteCollection {
         return try batches.map { batch in
             try KarenShared.PantryBatch(model: batch)
         }
+    }
+    
+    func getOverviewByPantryID(req: Request) async throws -> KarenShared.PantryOverview {
+        let pantryId = try req.parameters.require("id", as: UUID.self)
+        
+        return try await pantryService.getOverviewById(pantryId: pantryId, on: req.db)
+    }
+    
+    func getOverviewOfAll(req: Request) async throws -> KarenShared.PantryOverview {
+        try await pantryService.getOverview(on: req.db)
     }
 }
