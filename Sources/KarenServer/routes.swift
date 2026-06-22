@@ -25,5 +25,6 @@ func routes(_ app: Application) throws {
 
     try app.register(collection: PantryRoutes())
     try app.register(collection: TaskRoutes())
+    try app.register(collection: HomeRoutes())
 
 }
