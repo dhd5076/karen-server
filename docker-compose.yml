@@ -26,6 +26,7 @@ x-shared_environment: &shared_environment
   DATABASE_PASSWORD: &db_password vapor_password
   HOME_ASSISTANT_BASE_URL: ${HOME_ASSISTANT_BASE_URL}
   HOME_ASSISTANT_TOKEN: ${HOME_ASSISTANT_TOKEN}
+  HOME_ASSISTANT_WEATHER_ENTITY_ID: ${HOME_ASSISTANT_WEATHER_ENTITY_ID}
   
 services:
   app:

@@ -12,7 +12,10 @@ struct LightService {
     private let homeAssistantService = HomeAssistantService()
     
     func getLights(on client: any Client) async throws -> [KarenShared.Light] {
-        let entities = try await homeAssistantService.getEntities(on: client)
+        let entities = try await homeAssistantService.getEntities(
+            decoding: HomeAssistantLightAttributes.self,
+            on: client
+        )
         
         return entities
             .filter { $0.entityId.hasPrefix("light.") }
@@ -55,5 +58,15 @@ struct LightService {
         }
         
         return "light.\(lightId)"
+    }
+}
+
+private struct HomeAssistantLightAttributes: Decodable {
+    let friendlyName: String?
+    let brightness: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case friendlyName = "friendly_name"
+        case brightness
     }
 }
