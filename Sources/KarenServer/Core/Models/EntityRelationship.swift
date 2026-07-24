@@ -10,7 +10,7 @@ import Vapor
 
 final class EntityRelationship: Model, @unchecked Sendable {
     
-    static let schema = "entityRelationship"
+    static let schema = "entityRelationships"
     
     enum FieldKeys {
         static let subject: FieldKey = "subject"
@@ -18,7 +18,6 @@ final class EntityRelationship: Model, @unchecked Sendable {
         static let object: FieldKey = "object"
         static let validFrom: FieldKey = "valid_from"
         static let validUntil: FieldKey = "valid_until"
-        static let notes: FieldKey = "notes"
     }
     
     @ID(key: .id)

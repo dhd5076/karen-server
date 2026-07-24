@@ -10,7 +10,7 @@ import Vapor
 
 final class Entity: Model, @unchecked Sendable {
     
-    static let schema = "entity"
+    static let schema = "entities"
     
     enum FieldKeys {
         static let entityType: FieldKey = "entity_type"
@@ -25,9 +25,4 @@ final class Entity: Model, @unchecked Sendable {
     
     @Field(key: FieldKeys.displayName)
     var displayName: String
-    
-    func update(from update: Entity) {
-        self.entityType = update.entityType
-        self.displayName = update.displayName
-    }
 }

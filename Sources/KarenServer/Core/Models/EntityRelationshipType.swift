@@ -10,7 +10,7 @@ import Vapor
 
 final class EntityRelationshipType: Model, @unchecked Sendable {
     
-    static let schema = "entityRelationshipType"
+    static let schema = "entityRelationshipTypes"
     
     enum FieldKeys {
         static let displayName: FieldKey = "display_name"
