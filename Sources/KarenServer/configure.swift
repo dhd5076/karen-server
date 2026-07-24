@@ -18,6 +18,7 @@ public func configure(_ app: Application) async throws {
     ), as: .psql)
 
     app.migrations.add(CreateEntityTables())
+    app.migrations.add(CreateVehicleTables())
     app.migrations.add(CreateLocations())
     app.migrations.add(CreateMessages())
     app.migrations.add(CreatePeople())
