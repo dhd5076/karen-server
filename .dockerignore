@@ -1,2 +1,6 @@
 .build/
 .swiftpm/
+.git/
+.github/
+.DS_Store
+.env*
