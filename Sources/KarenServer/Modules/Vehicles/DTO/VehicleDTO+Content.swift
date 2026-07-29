@@ -5,7 +5,7 @@
 //  Created by Dylan Dunn on 7/24/26.
 //
 
-import KarenShared
+import KarenKit
 import Vapor
 
 extension VehicleNameRequest: @retroactive Content {}
