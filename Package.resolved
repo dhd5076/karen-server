@@ -65,6 +65,15 @@
       }
     },
     {
+      "identity" : "karen-lib",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dhd5076/karen-lib.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "da43307e2a8824a51820d6d24c533acc26a797a3"
+      }
+    },
+    {
       "identity" : "multipart-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/multipart-kit.git",
