@@ -1,6 +1,7 @@
 import NIOSSL
 import Fluent
 import FluentPostgresDriver
+import KarenAtlas
 import Vapor
 
 public func configure(_ app: Application) async throws {
@@ -17,16 +18,15 @@ public func configure(_ app: Application) async throws {
         tls: .prefer(try .init(configuration: .clientDefault)))
     ), as: .psql)
 
-    app.migrations.add(CreateEntityTables())
-    app.migrations.add(CreateVehicleTables())
+    app.migrations.add(CreateAtlasTables())
     app.migrations.add(CreateLocations())
     app.migrations.add(CreateMessages())
     app.migrations.add(CreatePeople())
     app.migrations.add(CreatePantryTables())
     app.migrations.add(CreateTaskTable())
     
-    try await app.autoRevert()
     try await app.autoMigrate()
+    await Atlas.configure(database: app.db)
 
     // register routes
     try routes(app)

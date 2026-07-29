@@ -5,7 +5,7 @@
 //  Created by Dylan Dunn on 7/24/26.
 //
 
-import KarenShared
+import KarenKit
 import Vapor
 
 struct VehicleController: RouteCollection {
@@ -61,17 +61,16 @@ struct VehicleController: RouteCollection {
 
     private func createVehicle(req: Request) async throws -> VehicleResponse {
         let request = try req.content.decode(VehicleRequest.self)
-        return try await vehicleService.createVehicle(request: request, on: req.db)
+        return try await vehicleService.createVehicle(request: request)
     }
 
     private func getAllVehicles(req: Request) async throws -> [VehicleResponse] {
-        try await vehicleService.getAllVehicleResponses(on: req.db)
+        try await vehicleService.getAllVehicleResponses()
     }
 
     private func getVehicle(req: Request) async throws -> VehicleResponse {
         try await vehicleService.getVehicleResponseById(
-            id: try requireUUID("id", from: req),
-            on: req.db
+            id: try requireUUID("id", from: req)
         )
     }
 
@@ -80,21 +79,19 @@ struct VehicleController: RouteCollection {
 
         return try await vehicleService.updateVehicle(
             id: try requireUUID("id", from: req),
-            request: request,
-            on: req.db
+            request: request
         )
     }
 
     private func createMake(req: Request) async throws -> VehicleMakeResponse {
         let request = try req.content.decode(VehicleNameRequest.self)
         return try await vehicleService.createMake(
-            displayName: request.displayName,
-            on: req.db
+            displayName: request.displayName
         )
     }
 
     private func getAllMakes(req: Request) async throws -> [VehicleMakeResponse] {
-        try await vehicleService.getAllMakes(on: req.db)
+        try await vehicleService.getAllMakes()
     }
 
     private func createModel(req: Request) async throws -> VehicleModelResponse {
@@ -102,15 +99,13 @@ struct VehicleController: RouteCollection {
 
         return try await vehicleService.createModel(
             makeId: try requireUUID("makeId", from: req),
-            displayName: request.displayName,
-            on: req.db
+            displayName: request.displayName
         )
     }
 
     private func getModels(req: Request) async throws -> [VehicleModelResponse] {
         try await vehicleService.getModels(
-            for: try requireUUID("makeId", from: req),
-            on: req.db
+            for: try requireUUID("makeId", from: req)
         )
     }
 
@@ -121,8 +116,7 @@ struct VehicleController: RouteCollection {
 
         return try await vehicleService.createAndAssignLicensePlate(
             vehicleId: try requireUUID("id", from: req),
-            request: request,
-            on: req.db
+            request: request
         )
     }
 
@@ -130,8 +124,7 @@ struct VehicleController: RouteCollection {
         req: Request
     ) async throws -> [VehicleLicensePlateResponse] {
         try await vehicleService.getLicensePlateHistory(
-            vehicleId: try requireUUID("id", from: req),
-            on: req.db
+            vehicleId: try requireUUID("id", from: req)
         )
     }
 
@@ -143,8 +136,7 @@ struct VehicleController: RouteCollection {
         return try await vehicleService.assignLicensePlate(
             licensePlateId: try requireUUID("plateId", from: req),
             vehicleId: try requireUUID("id", from: req),
-            validFrom: request.effectiveAt,
-            on: req.db
+            validFrom: request.effectiveAt
         )
     }
 
@@ -156,8 +148,7 @@ struct VehicleController: RouteCollection {
         return try await vehicleService.unassignLicensePlate(
             licensePlateId: try requireUUID("plateId", from: req),
             vehicleId: try requireUUID("id", from: req),
-            validUntil: request.effectiveAt ?? Date(),
-            on: req.db
+            validUntil: request.effectiveAt ?? Date()
         )
     }
 
