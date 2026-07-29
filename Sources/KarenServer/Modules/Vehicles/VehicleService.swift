@@ -14,7 +14,7 @@ struct VehicleService: Sendable {
 
     // MARK: - Make
 
-    func createMake(displayName: String) async throws -> VehicleMakeResponse {
+    func createMake(displayName: String) async throws -> VehicleMake {
         let displayName = try requireNonempty(displayName, field: "Make name")
         let normalizedName = normalizeCatalogName(displayName)
 
@@ -33,13 +33,13 @@ struct VehicleService: Sendable {
                 to: normalizedName
             )
 
-            return makeResponse(make)
+            return hydrateVehicleMake(from: make)
         }
     }
 
-    func getAllMakes() async throws -> [VehicleMakeResponse] {
+    func getAllMakes() async throws -> [VehicleMake] {
         try await Atlas.entities(ofType: .vehicleMake)
-            .map(makeResponse)
+            .map { hydrateVehicleMake(from: $0) }
             .sorted {
                 $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
             }
@@ -50,7 +50,7 @@ struct VehicleService: Sendable {
     func createModel(
         makeId: UUID,
         displayName: String
-    ) async throws -> VehicleModelResponse {
+    ) async throws -> VehicleModel {
         let displayName = try requireNonempty(displayName, field: "Model name")
         let normalizedName = normalizeCatalogName(displayName)
 
@@ -81,7 +81,7 @@ struct VehicleService: Sendable {
                 as: .modelMake
             )
 
-            return VehicleModelResponse(
+            return VehicleModel(
                 id: model.id,
                 makeId: make.id,
                 displayName: model.displayName
@@ -89,7 +89,7 @@ struct VehicleService: Sendable {
         }
     }
 
-    func getModels(for makeId: UUID) async throws -> [VehicleModelResponse] {
+    func getModels(for makeId: UUID) async throws -> [VehicleModel] {
         _ = try await requireEntity(
             id: makeId,
             type: .vehicleMake,
@@ -98,7 +98,7 @@ struct VehicleService: Sendable {
 
         return try await getModelEntities(for: makeId)
             .map {
-                VehicleModelResponse(
+                VehicleModel(
                     id: $0.id,
                     makeId: makeId,
                     displayName: $0.displayName
@@ -111,7 +111,7 @@ struct VehicleService: Sendable {
 
     // MARK: - Vehicle
 
-    func createVehicle(request: VehicleRequest) async throws -> VehicleResponse {
+    func createVehicle(request: VehicleRequest) async throws -> Vehicle {
         let values = try normalizedVehicleValues(from: request)
 
         return try await Atlas.transaction {
@@ -123,7 +123,7 @@ struct VehicleService: Sendable {
 
             let vehicle = try await Atlas.createEntity(.vehicle, values.displayName)
 
-            try await saveVehicleAttributes(
+            try await applyVehicleRequest(
                 on: vehicle,
                 request: request,
                 normalizedValues: values
@@ -139,27 +139,27 @@ struct VehicleService: Sendable {
                 targetId: request.modelId
             )
 
-            return try await vehicleResponse(vehicle)
+            return try await hydrateVehicle(from: vehicle)
         }
     }
 
-    func getAllVehicleResponses() async throws -> [VehicleResponse] {
-        var responses: [VehicleResponse] = []
+    func getAllVehicles() async throws -> [Vehicle] {
+        var vehicles: [Vehicle] = []
 
         for vehicle in try await Atlas.entities(
             ofType: .vehicle
         ) {
-            responses.append(try await vehicleResponse(vehicle))
+            vehicles.append(try await hydrateVehicle(from: vehicle))
         }
 
-        return responses.sorted {
+        return vehicles.sorted {
             $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
         }
     }
 
-    func getVehicleResponseById(id: UUID) async throws -> VehicleResponse {
-        try await vehicleResponse(
-            try await requireEntity(
+    func getVehicleById(id: UUID) async throws -> Vehicle {
+        try await hydrateVehicle(
+            from: try await requireEntity(
                 id: id,
                 type: .vehicle,
                 label: "Vehicle"
@@ -170,7 +170,7 @@ struct VehicleService: Sendable {
     func updateVehicle(
         id: UUID,
         request: VehicleRequest
-    ) async throws -> VehicleResponse {
+    ) async throws -> Vehicle {
         let values = try normalizedVehicleValues(from: request)
 
         return try await Atlas.transaction {
@@ -187,7 +187,7 @@ struct VehicleService: Sendable {
             try await validateUniqueVIN(values.vin, excluding: id)
 
             let updatedVehicle = try await vehicle.updateDisplayName(values.displayName)
-            try await saveVehicleAttributes(
+            try await applyVehicleRequest(
                 on: updatedVehicle,
                 request: request,
                 normalizedValues: values
@@ -203,7 +203,7 @@ struct VehicleService: Sendable {
                 targetId: request.modelId
             )
 
-            return try await vehicleResponse(updatedVehicle)
+            return try await hydrateVehicle(from: updatedVehicle)
         }
     }
 
@@ -212,7 +212,7 @@ struct VehicleService: Sendable {
     func createAndAssignLicensePlate(
         vehicleId: UUID,
         request: LicensePlateRequest
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         try await Atlas.transaction {
             let licensePlate = try await createLicensePlate(request: request)
 
@@ -228,7 +228,7 @@ struct VehicleService: Sendable {
         licensePlateId: UUID,
         vehicleId: UUID,
         validFrom: Date? = nil
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         try await Atlas.transaction {
             let licensePlate = try await requireEntity(
                 id: licensePlateId,
@@ -248,7 +248,7 @@ struct VehicleService: Sendable {
         licensePlateId: UUID,
         vehicleId: UUID,
         validUntil: Date = Date()
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         try await Atlas.transaction {
             _ = try await requireEntity(
                 id: vehicleId,
@@ -279,7 +279,7 @@ struct VehicleService: Sendable {
                 )
             }
 
-            return try await licensePlateRelationshipResponse(
+            return try await licensePlateAssignment(
                 relationship: relationship.end(at: validUntil),
                 licensePlate: licensePlate
             )
@@ -288,7 +288,7 @@ struct VehicleService: Sendable {
 
     func getLicensePlateHistory(
         vehicleId: UUID
-    ) async throws -> [VehicleLicensePlateResponse] {
+    ) async throws -> [VehicleLicensePlateAssignment] {
         _ = try await requireEntity(
             id: vehicleId,
             type: .vehicle,
@@ -300,7 +300,7 @@ struct VehicleService: Sendable {
             type: .licensePlateAssignment,
             includeEnded: true
         )
-        var responses: [VehicleLicensePlateResponse] = []
+        var assignments: [VehicleLicensePlateAssignment] = []
 
         for relationship in relationships {
             let licensePlate = try await requireEntity(
@@ -308,22 +308,22 @@ struct VehicleService: Sendable {
                 type: .licensePlate,
                 label: "License plate"
             )
-            responses.append(
-                try await licensePlateRelationshipResponse(
+            assignments.append(
+                try await licensePlateAssignment(
                     relationship: relationship,
                     licensePlate: licensePlate
                 )
             )
         }
 
-        return responses.sorted {
+        return assignments.sorted {
             ($0.validFrom ?? .distantPast) > ($1.validFrom ?? .distantPast)
         }
     }
 
     // MARK: - Persistence Translation
 
-    private func saveVehicleAttributes(
+    private func applyVehicleRequest(
         on vehicle: Entity,
         request: VehicleRequest,
         normalizedValues: NormalizedVehicleValues
@@ -454,7 +454,7 @@ struct VehicleService: Sendable {
         _ licensePlate: Entity,
         vehicleId: UUID,
         validFrom: Date?
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         let vehicle = try await requireEntity(
             id: vehicleId,
             type: .vehicle,
@@ -477,7 +477,7 @@ struct VehicleService: Sendable {
             validFrom: validFrom
         )
 
-        return try await licensePlateRelationshipResponse(
+        return try await licensePlateAssignment(
             relationship: relationship,
             licensePlate: licensePlate
         )
@@ -592,15 +592,15 @@ struct VehicleService: Sendable {
         }
     }
 
-    // MARK: - Responses
+    // MARK: - Entity Hydration
 
-    private func makeResponse(_ make: Entity) -> VehicleMakeResponse {
-        VehicleMakeResponse(id: make.id, displayName: make.displayName)
+    private func hydrateVehicleMake(from entity: Entity) -> VehicleMake {
+        VehicleMake(id: entity.id, displayName: entity.displayName)
     }
 
-    private func modelResponse(_ model: Entity) async throws -> VehicleModelResponse {
+    private func hydrateVehicleModel(from entity: Entity) async throws -> VehicleModel {
         guard let relationship = try await Atlas.relationships(
-            subject: model.id,
+            subject: entity.id,
             type: .modelMake
         ).first else {
             throw Abort(
@@ -609,55 +609,53 @@ struct VehicleService: Sendable {
             )
         }
 
-        return VehicleModelResponse(
-            id: model.id,
+        return VehicleModel(
+            id: entity.id,
             makeId: relationship.object,
-            displayName: model.displayName
+            displayName: entity.displayName
         )
     }
 
-    private func vehicleResponse(_ vehicle: Entity) async throws -> VehicleResponse {
-        let attributes = try await vehicle.attributes()
+    private func hydrateVehicle(from entity: Entity) async throws -> Vehicle {
+        let attributes = try await entity.attributes()
         let make = try await relatedEntity(
-            from: vehicle.id,
+            from: entity.id,
             relationshipType: .vehicleMake
         )
         let model = try await relatedEntity(
-            from: vehicle.id,
+            from: entity.id,
             relationshipType: .vehicleModel
         )
-        let modelResponse: VehicleModelResponse? = if let model {
-            try await modelResponse(model)
+        let hydratedModel: VehicleModel? = if let model {
+            try await hydrateVehicleModel(from: model)
         } else {
             nil
         }
 
-        return VehicleResponse(
-            id: vehicle.id,
-            entityId: vehicle.id,
-            displayName: vehicle.displayName,
+        return Vehicle(
+            id: entity.id,
+            entityId: entity.id,
+            displayName: entity.displayName,
             vehicleType: try requiredAttribute(
                 .vehicleType,
                 from: attributes,
                 entityLabel: "Vehicle"
             ),
             modelYear: attributes[.modelYear].flatMap(Int.init),
-            make: make.map(makeResponse),
-            model: modelResponse,
+            make: make.map { hydrateVehicleMake(from: $0) },
+            model: hydratedModel,
             trim: attributes[.trim],
             color: attributes[.color],
             vin: attributes[.vin]
         )
     }
 
-    private func licensePlateResponse(
-        _ licensePlate: Entity
-    ) async throws -> LicensePlateResponse {
-        let attributes = try await licensePlate.attributes()
+    private func hydrateLicensePlate(from entity: Entity) async throws -> LicensePlate {
+        let attributes = try await entity.attributes()
 
-        return LicensePlateResponse(
-            id: licensePlate.id,
-            entityId: licensePlate.id,
+        return LicensePlate(
+            id: entity.id,
+            entityId: entity.id,
             displayNumber: try requiredAttribute(
                 .displayNumber,
                 from: attributes,
@@ -681,13 +679,13 @@ struct VehicleService: Sendable {
         )
     }
 
-    private func licensePlateRelationshipResponse(
+    private func licensePlateAssignment(
         relationship: Relationship,
         licensePlate: Entity
-    ) async throws -> VehicleLicensePlateResponse {
-        VehicleLicensePlateResponse(
+    ) async throws -> VehicleLicensePlateAssignment {
+        VehicleLicensePlateAssignment(
             relationshipId: relationship.id,
-            licensePlate: try await licensePlateResponse(licensePlate),
+            licensePlate: try await hydrateLicensePlate(from: licensePlate),
             validFrom: relationship.validFrom,
             validUntil: relationship.validUntil
         )

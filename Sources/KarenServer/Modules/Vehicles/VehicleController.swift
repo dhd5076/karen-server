@@ -59,22 +59,22 @@ struct VehicleController: RouteCollection {
         )
     }
 
-    private func createVehicle(req: Request) async throws -> VehicleResponse {
+    private func createVehicle(req: Request) async throws -> Vehicle {
         let request = try req.content.decode(VehicleRequest.self)
         return try await vehicleService.createVehicle(request: request)
     }
 
-    private func getAllVehicles(req: Request) async throws -> [VehicleResponse] {
-        try await vehicleService.getAllVehicleResponses()
+    private func getAllVehicles(req: Request) async throws -> [Vehicle] {
+        try await vehicleService.getAllVehicles()
     }
 
-    private func getVehicle(req: Request) async throws -> VehicleResponse {
-        try await vehicleService.getVehicleResponseById(
+    private func getVehicle(req: Request) async throws -> Vehicle {
+        try await vehicleService.getVehicleById(
             id: try requireUUID("id", from: req)
         )
     }
 
-    private func updateVehicle(req: Request) async throws -> VehicleResponse {
+    private func updateVehicle(req: Request) async throws -> Vehicle {
         let request = try req.content.decode(VehicleRequest.self)
 
         return try await vehicleService.updateVehicle(
@@ -83,18 +83,18 @@ struct VehicleController: RouteCollection {
         )
     }
 
-    private func createMake(req: Request) async throws -> VehicleMakeResponse {
+    private func createMake(req: Request) async throws -> VehicleMake {
         let request = try req.content.decode(VehicleNameRequest.self)
         return try await vehicleService.createMake(
             displayName: request.displayName
         )
     }
 
-    private func getAllMakes(req: Request) async throws -> [VehicleMakeResponse] {
+    private func getAllMakes(req: Request) async throws -> [VehicleMake] {
         try await vehicleService.getAllMakes()
     }
 
-    private func createModel(req: Request) async throws -> VehicleModelResponse {
+    private func createModel(req: Request) async throws -> VehicleModel {
         let request = try req.content.decode(VehicleNameRequest.self)
 
         return try await vehicleService.createModel(
@@ -103,7 +103,7 @@ struct VehicleController: RouteCollection {
         )
     }
 
-    private func getModels(req: Request) async throws -> [VehicleModelResponse] {
+    private func getModels(req: Request) async throws -> [VehicleModel] {
         try await vehicleService.getModels(
             for: try requireUUID("makeId", from: req)
         )
@@ -111,7 +111,7 @@ struct VehicleController: RouteCollection {
 
     private func createAndAssignLicensePlate(
         req: Request
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         let request = try req.content.decode(LicensePlateRequest.self)
 
         return try await vehicleService.createAndAssignLicensePlate(
@@ -122,7 +122,7 @@ struct VehicleController: RouteCollection {
 
     private func getLicensePlateHistory(
         req: Request
-    ) async throws -> [VehicleLicensePlateResponse] {
+    ) async throws -> [VehicleLicensePlateAssignment] {
         try await vehicleService.getLicensePlateHistory(
             vehicleId: try requireUUID("id", from: req)
         )
@@ -130,7 +130,7 @@ struct VehicleController: RouteCollection {
 
     private func assignLicensePlate(
         req: Request
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         let request = try req.content.decode(LicensePlateRelationshipRequest.self)
 
         return try await vehicleService.assignLicensePlate(
@@ -142,7 +142,7 @@ struct VehicleController: RouteCollection {
 
     private func unassignLicensePlate(
         req: Request
-    ) async throws -> VehicleLicensePlateResponse {
+    ) async throws -> VehicleLicensePlateAssignment {
         let request = try req.content.decode(LicensePlateRelationshipRequest.self)
 
         return try await vehicleService.unassignLicensePlate(
