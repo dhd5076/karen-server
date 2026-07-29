@@ -18,7 +18,7 @@ WORKDIR /build
 # This creates a cached layer that can be reused
 # as long as your Package.swift/Package.resolved files and KarenShared do not change.
 COPY ./Package.* ./
-ADD https://api.github.com/repos/dhd5076/karen-lib/commits/main /tmp/karen-lib-main.json
+ADD https://api.github.com/repos/dhd5076/KarenKit/commits/main /tmp/karenkit-main.json
 RUN swift package resolve \
         $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
 

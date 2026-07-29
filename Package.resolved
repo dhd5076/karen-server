@@ -1,5 +1,5 @@
 {
-  "originHash" : "f2620c36913d1c4eaeed0a01a2800bcefea4cc0369192932d7243478b33b254f",
+  "originHash" : "eb78ad7ee2788af457e48339c7f767e613f3f5820d97bd803713a3c8148c546f",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -65,9 +65,9 @@
       }
     },
     {
-      "identity" : "karen-lib",
+      "identity" : "karenkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dhd5076/karen-lib.git",
+      "location" : "https://github.com/dhd5076/KarenKit.git",
       "state" : {
         "branch" : "main",
         "revision" : "da43307e2a8824a51820d6d24c533acc26a797a3"

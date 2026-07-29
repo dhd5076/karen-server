@@ -17,8 +17,8 @@ let package = Package(
         // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         
-        //KarenShared
-        .package(url: "https://github.com/dhd5076/karen-lib.git", branch: "main")
+        // KarenKit
+        .package(url: "https://github.com/dhd5076/KarenKit.git", branch: "main")
     ],
     targets: [
         .executableTarget(
@@ -29,9 +29,9 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
-                .product(name: "KarenShared", package: "karen-lib"),
-                .product(name: "KarenKit", package: "karen-lib"),
-                .product(name: "KarenAtlas", package: "karen-lib")
+                .product(name: "KarenShared", package: "karenkit"),
+                .product(name: "KarenKit", package: "karenkit"),
+                .product(name: "KarenAtlas", package: "karenkit")
             ],
             swiftSettings: swiftSettings
         ),
@@ -40,8 +40,8 @@ let package = Package(
             dependencies: [
                 "KarenServer",
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
-                .product(name: "KarenAtlas", package: "karen-lib"),
-                .product(name: "KarenKit", package: "karen-lib"),
+                .product(name: "KarenAtlas", package: "karenkit"),
+                .product(name: "KarenKit", package: "karenkit"),
                 .product(name: "Vapor", package: "vapor")
             ]
         )
