@@ -19,8 +19,7 @@ WORKDIR /build
 # as long as your Package.swift/Package.resolved files and KarenShared do not change.
 COPY ./Package.* ./
 ADD https://api.github.com/repos/dhd5076/KarenKit/commits/main /tmp/karenkit-main.json
-RUN swift package resolve \
-        $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
+RUN swift package resolve
 
 # Copy entire repo into container
 COPY . .
