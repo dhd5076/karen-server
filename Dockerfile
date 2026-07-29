@@ -25,6 +25,9 @@ RUN swift package resolve \
 # Copy entire repo into container
 COPY . .
 
+# Build against the latest KarenKit commit from the configured branch.
+RUN swift package update karenkit
+
 RUN mkdir /staging
 
 # Build the application, with optimizations, with static linking, and using jemalloc
