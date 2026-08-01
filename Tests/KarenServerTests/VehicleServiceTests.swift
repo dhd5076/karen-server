@@ -6,8 +6,8 @@ import Testing
 import Vapor
 @testable import KarenServer
 
-@Suite("Atlas-backed Vehicle service", .serialized)
-struct VehicleServiceTests {
+@Suite("KarenServer Atlas integration", .serialized)
+struct KarenServerAtlasTests {
     @Test("Persists a complete vehicle and license plate lifecycle")
     func vehicleLifecycle() async throws {
         try await withTestDatabase {

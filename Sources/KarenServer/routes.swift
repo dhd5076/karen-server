@@ -28,5 +28,6 @@ func routes(_ app: Application) throws {
     try app.register(collection: HomeRoutes())
     try app.register(collection: WeatherRoutes())
     try app.register(collection: VehicleRoutes())
+    try app.register(collection: AtlasRoutes())
 
 }

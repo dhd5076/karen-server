@@ -19,10 +19,10 @@ struct VehicleService: Sendable {
         let normalizedName = normalizeCatalogName(displayName)
 
         return try await Atlas.transaction {
-            guard try await findEntity(
-                type: .vehicleMake,
-                attribute: .normalizedName,
-                value: normalizedName
+            guard try await Atlas.entity(
+                ofType: .vehicleMake,
+                where: .normalizedName,
+                equals: normalizedName
             ) == nil else {
                 throw Abort(.conflict, reason: "Vehicle make already exists")
             }
@@ -261,11 +261,11 @@ struct VehicleService: Sendable {
                 label: "License plate"
             )
 
-            guard let relationship = try await Atlas.relationships(
+            guard let relationship = try await Atlas.relationship(
                 subject: licensePlateId,
                 object: vehicleId,
                 type: .licensePlateAssignment
-            ).first else {
+            ) else {
                 throw Abort(
                     .notFound,
                     reason: "License plate isn't assigned to this vehicle"
@@ -461,10 +461,10 @@ struct VehicleService: Sendable {
             label: "Vehicle"
         )
 
-        guard try await Atlas.relationships(
+        guard try await Atlas.relationship(
             subject: licensePlate.id,
             type: .licensePlateAssignment
-        ).isEmpty else {
+        ) == nil else {
             throw Abort(
                 .conflict,
                 reason: "License plate already has a current assignment"
@@ -502,19 +502,6 @@ struct VehicleService: Sendable {
         }
 
         return models
-    }
-
-    private func findEntity(
-        type: EntityType,
-        attribute: AttributeKey,
-        value: String
-    ) async throws -> Entity? {
-        for entity in try await Atlas.entities(ofType: type) where
-            try await entity.attribute(attribute) == value {
-            return entity
-        }
-
-        return nil
     }
 
     private func requireEntity(
@@ -563,11 +550,11 @@ struct VehicleService: Sendable {
             label: "Vehicle model"
         )
 
-        guard try await Atlas.relationships(
+        guard try await Atlas.relationship(
             subject: modelId,
             object: makeId,
             type: .modelMake
-        ).isEmpty == false else {
+        ) != nil else {
             throw Abort(
                 .badRequest,
                 reason: "Vehicle model doesn't belong to the selected make"
@@ -583,10 +570,10 @@ struct VehicleService: Sendable {
             return
         }
 
-        if let existing = try await findEntity(
-            type: .vehicle,
-            attribute: .vin,
-            value: vin
+        if let existing = try await Atlas.entity(
+            ofType: .vehicle,
+            where: .vin,
+            equals: vin
         ), existing.id != excludedId {
             throw Abort(.conflict, reason: "VIN already belongs to another vehicle")
         }
@@ -599,10 +586,10 @@ struct VehicleService: Sendable {
     }
 
     private func hydrateVehicleModel(from entity: Entity) async throws -> VehicleModel {
-        guard let relationship = try await Atlas.relationships(
+        guard let relationship = try await Atlas.relationship(
             subject: entity.id,
             type: .modelMake
-        ).first else {
+        ) else {
             throw Abort(
                 .internalServerError,
                 reason: "Vehicle model is missing its make relationship"
@@ -695,10 +682,10 @@ struct VehicleService: Sendable {
         from entityId: UUID,
         relationshipType: RelationshipType
     ) async throws -> Entity? {
-        guard let relationship = try await Atlas.relationships(
+        guard let relationship = try await Atlas.relationship(
             subject: entityId,
             type: relationshipType
-        ).first else {
+        ) else {
             return nil
         }
 
