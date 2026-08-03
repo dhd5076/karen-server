@@ -21,7 +21,6 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateAtlasTables())
     app.migrations.add(CreateLocations())
     app.migrations.add(CreateMessages())
-    app.migrations.add(CreatePeople())
     app.migrations.add(CreatePantryTables())
     app.migrations.add(CreateTaskTable())
     

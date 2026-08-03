@@ -8,6 +8,78 @@ import Vapor
 
 @Suite("KarenServer Atlas integration", .serialized)
 struct KarenServerAtlasTests {
+    @Test("Persists and updates Atlas-backed people")
+    func peopleLifecycle() async throws {
+        try await withTestDatabase {
+            let service = PeopleService()
+            let complete = try await service.createPerson(
+                request: PersonRequest(
+                    firstName: "  Dylan ",
+                    middleName: "James",
+                    lastName: "Dunn"
+                )
+            )
+            let firstNameOnly = try await service.createPerson(
+                request: PersonRequest(firstName: "Alex")
+            )
+
+            #expect(complete.displayName == "Dylan James Dunn")
+            #expect(complete.firstName == "Dylan")
+            #expect(complete.middleName == "James")
+            #expect(complete.lastName == "Dunn")
+            #expect(firstNameOnly.displayName == "Alex")
+            #expect(firstNameOnly.middleName == nil)
+            #expect(firstNameOnly.lastName == nil)
+
+            let fetched = try await service.getPersonById(id: complete.id)
+            #expect(fetched.id == complete.id)
+
+            let updated = try await service.updatePerson(
+                id: complete.id,
+                request: PersonRequest(
+                    firstName: "Dylan",
+                    middleName: " ",
+                    lastName: nil
+                )
+            )
+            #expect(updated.displayName == "Dylan")
+            #expect(updated.middleName == nil)
+            #expect(updated.lastName == nil)
+
+            let entity = try await Atlas.entity(id: complete.id)
+            #expect(try await entity.attribute(.middleName) == nil)
+            #expect(try await entity.attribute(.lastName) == nil)
+
+            let people = try await service.getAll()
+            #expect(people.map(\.displayName) == ["Alex", "Dylan"])
+
+            let searchResults = try await service.searchByName(query: "dYl")
+            #expect(searchResults.map(\.id) == [complete.id])
+        }
+    }
+
+    @Test("Rejects missing and non-Person entity IDs")
+    func rejectsInvalidPersonIds() async throws {
+        try await withTestDatabase {
+            let service = PeopleService()
+
+            await #expect(throws: Abort.self) {
+                _ = try await service.getPersonById(id: UUID())
+            }
+
+            let vehicle = try await Atlas.createEntity(.vehicle, "Not a Person")
+            await #expect(throws: Abort.self) {
+                _ = try await service.getPersonById(id: vehicle.id)
+            }
+
+            await #expect(throws: Abort.self) {
+                _ = try await service.createPerson(
+                    request: PersonRequest(firstName: "  ")
+                )
+            }
+        }
+    }
+
     @Test("Persists a complete vehicle and license plate lifecycle")
     func vehicleLifecycle() async throws {
         try await withTestDatabase {

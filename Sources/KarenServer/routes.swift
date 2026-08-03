@@ -5,7 +5,6 @@ func routes(_ app: Application) throws {
     
     let locationController = LocationController()
     let chatController = ChatController()
-    let peopleController = PeopleController()
     
     //TODO: Create Route Collections
     
@@ -17,12 +16,7 @@ func routes(_ app: Application) throws {
     app.post("chat", use: chatController.send)
     
     
-    //People Routes
-    app.get("people", use: peopleController.getAll)
-    app.get("people", "search", use: peopleController.searchByName)
-    app.get("people", ":personID", use: peopleController.getByID) //TODO: change to :id
-    app.post("people", use: peopleController.create)
-
+    try app.register(collection: PeopleRoutes())
     try app.register(collection: PantryRoutes())
     try app.register(collection: TaskRoutes())
     try app.register(collection: HomeRoutes())
